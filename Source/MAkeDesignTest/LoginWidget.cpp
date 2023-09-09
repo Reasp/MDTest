@@ -13,7 +13,6 @@ void ULoginWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    // Привязываем функцию SendRequest к событию OnClicked кнопки RequestButton
     if (RequestButton)
     {
         RequestButton->OnClicked.AddDynamic(this, &ULoginWidget::SendGetRequest);
@@ -28,22 +27,18 @@ void ULoginWidget::OnRequestButtonClicked()
 
 void ULoginWidget::SendGetRequest()
 {
-    // Get the username and password from the input fields
-    FString Username = UsernameInput->GetText().ToString();
-    FString Password = PasswordInput->GetText().ToString();
+    const FString Username = UsernameInput->GetText().ToString();
+    const FString Password = PasswordInput->GetText().ToString();
 
-    // URL for the GET request
-    FString Url = ServerAddress + "?login=" + Username + "&password=" + Password;
-
-    // Create an HTTP client
     TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
-    Request->SetVerb("GET");
-    Request->SetURL(Url);
+    Request->SetVerb("POST");
+    Request->SetURL(ServerAddress);
+    Request->SetHeader("Content-Type", "application/json");
 
-    // Set a handler for the response
+    const FString Content = "email=" + Username + "&password=" + Password;
+    Request->SetContentAsString(Content);
+
     Request->OnProcessRequestComplete().BindUObject(this, &ULoginWidget::OnHttpRequestComplete);
-
-    // Send the request
     Request->ProcessRequest();
 }
 
@@ -55,9 +50,9 @@ void ULoginWidget::OnHttpRequestComplete(FHttpRequestPtr Request, FHttpResponseP
         if (Response->GetResponseCode() == EHttpResponseCodes::Ok)
         {
             // Parse the JSON response
-            FString ResponseString = Response->GetContentAsString();
+            const FString ResponseString = Response->GetContentAsString();
             TSharedPtr<FJsonObject> JsonObject;
-            TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseString);
+            const TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseString);
 
             if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
             {
