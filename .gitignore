@@ -1,0 +1,9 @@
+.vs
+*.sln
+DerivedDataCache/
+Intermediate/
+Saved/
+Binaries/
+Build/
+Documentation/
+/Models/SK_Fire_Golem.FBX
