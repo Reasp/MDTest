@@ -29,14 +29,22 @@ void ULoginWidget::SendGetRequest()
 {
     const FString Username = UsernameInput->GetText().ToString();
     const FString Password = PasswordInput->GetText().ToString();
-
     TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
-    Request->SetVerb("POST");
+    Request->SetVerb("POST");  
     Request->SetURL(ServerAddress);
-    Request->SetHeader("Content-Type", "application/json");
 
-    const FString Content = "email=" + Username + "&password=" + Password;
-    Request->SetContentAsString(Content);
+    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+
+    // Создаем JSON объект для отправки
+    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+    JsonObject->SetStringField(TEXT("email"), Username);
+    JsonObject->SetStringField(TEXT("password"), Password);
+
+    FString JsonRequestString;
+    TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<TCHAR>::Create(&JsonRequestString);
+    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), JsonWriter);
+
+    Request->SetContentAsString(JsonRequestString);
 
     Request->OnProcessRequestComplete().BindUObject(this, &ULoginWidget::OnHttpRequestComplete);
     Request->ProcessRequest();
