@@ -33,7 +33,7 @@ void ULoginWidget::SendGetRequest()
     FString Password = PasswordInput->GetText().ToString();
 
     // URL for the GET request
-    FString Url = ServerAddress + "?username=" + Username + "&password=" + Password;
+    FString Url = ServerAddress + "?login=" + Username + "&password=" + Password;
 
     // Create an HTTP client
     TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
