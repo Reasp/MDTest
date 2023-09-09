@@ -33,7 +33,7 @@ void ULoginWidget::SendGetRequest()
     FString Password = PasswordInput->GetText().ToString();
 
     // URL for the GET request
-    FString Url = ServerAddress + "?login=" + Username + "&password=" + Password;
+    FString Url = ServerAddress + "?email=" + Username + "&password=" + Password;
 
     // Create an HTTP client
     TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
@@ -81,7 +81,8 @@ void ULoginWidget::OnHttpRequestComplete(FHttpRequestPtr Request, FHttpResponseP
             else
             {
                 // JSON parsing error
-                ResponseText->SetText(FText::FromString("JSON parsing error."));
+                ResponseText->SetText(FText::FromString("JSON parsing error.\n" + ResponseString));
+                UE_LOG(LogTemp, Warning, TEXT("JSON parsing error\n %s"), *Response->GetContentAsString());
             }
         }
         else
